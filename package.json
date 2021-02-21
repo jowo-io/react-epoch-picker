@@ -1,0 +1,58 @@
+{
+    "name": "react-epoch-picker",
+    "version": "1.0.0",
+    "description": "A React UI component for choosing an date epoch, starting zoomed out at millenniums and going down through the centuries, decades and years.",
+    "main": "dist/index.js",
+    "engine": {
+        "node": "10.22.0"
+    },
+    "scripts": {
+        "test": "jest -- test.js",
+        "dev": "webpack --mode=development --watch",
+        "build": "webpack --mode=production"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jowo-io/react-epoch-picker.git"
+    },
+    "keywords": [
+        "react-epoch-picker",
+        "react",
+        "date-picker",
+        "date",
+        "millennium",
+        "century",
+        "decade",
+        "year",
+        "time",
+        "calendar"
+    ],
+    "author": "jowo-io",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/jowo-io/react-epoch-picker/issues"
+    },
+    "homepage": "https://github.com/jowo-io/react-epoch-picker#readme",
+    "peerDependencies": {
+        "react": ">=15.0.1",
+        "react-dom": ">=15.0.1"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.12.17",
+        "@babel/preset-env": "^7.12.17",
+        "@babel/preset-react": "^7.12.13",
+        "babel-loader": "^8.2.2",
+        "babel-plugin-rewire": "^1.2.0",
+        "clean-webpack-plugin": "^3.0.0",
+        "enzyme": "^3.11.0",
+        "enzyme-adapter-react-16": "^1.15.6",
+        "html-webpack-plugin": "^5.2.0",
+        "jest": "^24.9.0",
+        "prop-types": "^15.7.2",
+        "react": "^16.14.0",
+        "react-dom": "^16.14.0",
+        "webpack": "^5.23.0",
+        "webpack-cli": "^4.5.0",
+        "webpack-merge": "^5.7.3"
+    }
+}
