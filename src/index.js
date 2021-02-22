@@ -1,70 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-function recursiveKeychainLookup(epochs, keychain) {}
-
-const repeat = (callback, total) => {
-    let arr = [];
-    for (let i = 0; i < total; i++) {
-        const returnValue = callback(i, total);
-        if (returnValue) {
-            arr.push(returnValue);
-        }
-    }
-    return arr;
-};
-
-function renderBreadcrumbs({ breadcrumbs, key, epoch, onChange }) {
-    let value;
-    // console.log("key", key);
-    // console.log("breadcrumbs", breadcrumbs);
-    const breadcrumbIndex = breadcrumbs.findIndex(({ key: k }) => key === k);
-    const breadcrumb = breadcrumbs[breadcrumbIndex];
-    // console.log("breadcrumbIndex", breadcrumbIndex);
-    // console.log("breadcrumb", breadcrumb);
-    const { isFinal, epochs, max, min } = breadcrumb;
-    if (typeof epochs.format === "function") {
-        value = epochs.format({
-            values: epoch.values,
-            max,
-            min,
-            key,
-            step: epochs.step,
-        });
-    } else {
-        value = epoch.values[key];
-    }
-
-    // console.log("-------------------");
-    // console.log("key", key);
-    // console.log("epochs", epochs);
-    // console.log("max", max);
-    // console.log("min", min);
-    // console.log("epoch", epoch);
-    const keychain = breadcrumbs.slice(0, breadcrumbIndex + 1).map(({ key: k }) => k);
-
-    // console.log("keychain", keychain);
-    const values = keychain.reduce((accumulator, k) => {
-        accumulator[k] = epoch.values[k];
-        return accumulator;
-    }, {});
-
-    console.log("value", value);
-    console.log("isFinal", isFinal);
-
-    let changeKey = key;
-    if (isFinal) {
-        delete values[key];
-        changeKey = keychain[breadcrumbIndex - 1];
-    }
-
-    return (
-        <span onClick={() => onChange({ keychain, values, key: changeKey })} key={`${key}`}>
-            {value}
-            {/* - {keychain.join(" > ")} */}
-        </span>
-    );
-}
+import Breadcrumbs from "./components/Breadcrumbs";
+import repeat from "./utils/repeat";
 
 function renderEpochs(epochs, max, min, epoch, onChange, breadcrumbs = []) {
     let isCurrent = false;
@@ -85,17 +23,8 @@ function renderEpochs(epochs, max, min, epoch, onChange, breadcrumbs = []) {
     }
 
     if (isCurrent) {
-        //console.log("-------------------");
-        //console.log("epochs", epochs);
-        //console.log("max", max);
-        //console.log("min", min);
-        console.log("epoch", epoch);
-        //console.log("isCurrent", isCurrent);
-        //console.log("isFinal", isFinal);
         const diff = Math.ceil(max - min);
         let total = Math.ceil(diff / epochs.step);
-        // //console.log("total", total);
-        // //console.log(total, epochs.step);
         if (diff % epochs.step === 0) {
             total++;
         }
@@ -139,16 +68,17 @@ function renderEpochs(epochs, max, min, epoch, onChange, breadcrumbs = []) {
                     );
                 }, total)}
                 <br />
-                <br />
-                {keychain.join(" > ")}
-                <br />
-                <br />
                 <small>
                     {breadcrumbs.map(({ key }, i) => (
-                        <>
+                        <React.Fragment key={`${key}_breadcrumb`}>
                             {i !== 0 && " > "}
-                            {renderBreadcrumbs({ onChange, epoch, breadcrumbs, key })}
-                        </>
+                            <Breadcrumbs
+                                onChange={onChange}
+                                epoch={epoch}
+                                breadcrumbs={breadcrumbs}
+                                keyName={key}
+                            />
+                        </React.Fragment>
                     ))}
                 </small>
             </>
@@ -159,22 +89,15 @@ function renderEpochs(epochs, max, min, epoch, onChange, breadcrumbs = []) {
         let isFinalBreadcrumb = false;
         if (!(nextEpochs && nextEpochs.epochs) && nextEpochs.key === epoch.key) {
             value = epoch.values[epoch.keychain[epoch.keychain.length - 2]];
-
-            //console.log("YES", value);
             isFinalBreadcrumb = true;
         } else {
             value = epoch.values[epoch.key];
-            //console.log("NO", value);
         }
         let nextMax = value + epochs.step - 1;
         if (nextMax > max) {
             nextMax = max;
         }
         let nextMin = value;
-        //console.log("max", max);
-        //console.log("nextMax", nextMax);
-        //console.log("min", min);
-        //console.log("nextMin", nextMin);
 
         const newBreadcrumbs = [{ epochs, max, min, key: epochs.key, isFinal: false }];
         if (isFinalBreadcrumb) {
@@ -200,7 +123,9 @@ function renderEpochs(epochs, max, min, epoch, onChange, breadcrumbs = []) {
 const EpochPicker = function ({ data, epoch, onChange, Tag, className, style, extraAttributes }) {
     return (
         <Tag {...extraAttributes} className={className} style={style}>
-            {renderEpochs(data.epochs, data.max, data.min, epoch, onChange)}
+            {data instanceof Array
+                ? "hello"
+                : renderEpochs(data.epochs, data.max, data.min, epoch, onChange)}
         </Tag>
     );
 };
@@ -214,7 +139,7 @@ EpochPicker.defaultProps = {
 
 EpochPicker.propTypes = {
     // required
-    data: PropTypes.object.isRequired, // TODO make this recursive proptype
+    data: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]).isRequired, // TODO make this recursive proptype
     // optional
 
     epoch: PropTypes.shape({
