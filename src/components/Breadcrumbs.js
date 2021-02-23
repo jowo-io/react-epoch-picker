@@ -1,46 +1,77 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-function Breadcrumbs({ breadcrumbs, keyName, epoch, onChange }) {
-    let value;
-    const breadcrumbIndex = breadcrumbs.findIndex(({ key: k }) => keyName === k);
-    const breadcrumb = breadcrumbs[breadcrumbIndex];
-    const { isFinal, epochs, max, min } = breadcrumb;
+import nestedLookup from "../utils/nestedLookup";
+import getBreadcrumbs from "../utils/getBreadcrumbs";
 
-    if (typeof epochs.format === "function") {
-        value = epochs.format({ values: epoch.values, max, min, key: keyName, step: epochs.step });
-    } else {
-        value = epoch.values[keyName];
-    }
-
-    const keychain = breadcrumbs.slice(0, breadcrumbIndex + 1).map(({ key: k }) => k);
-
-    const values = keychain.reduce((accumulator, k) => {
-        accumulator[k] = epoch.values[k];
-        return accumulator;
-    }, {});
-
-    let changeKey = keyName;
-    if (isFinal) {
-        delete values[keyName];
-        changeKey = keychain[breadcrumbIndex - 1];
-    }
+function Breadcrumbs({ data, keychain, values, onChange, layout }) {
+    const { wrapper: Wrapper, spacer: Spacer, crumb: Crumb, selectedCrumb: SelectedCrumb } = layout;
+    const breadcrumbs = getBreadcrumbs({
+        data,
+        keychain,
+        values,
+    });
 
     return (
-        <span onClick={() => onChange({ keychain, values, key: changeKey })} key={`${keyName}`}>
-            {value}
-        </span>
+        <Wrapper>
+            {breadcrumbs.map(({ max, min, step, key }, i) => {
+                const isSelected = i === breadcrumbs.length - 1;
+                if (data.length === 1 && i === 0) {
+                    return null;
+                }
+                let value = values[key];
+                let label = value;
+                const index = keychain.indexOf(key);
+                const { activeEpoch } = nestedLookup(data, keychain.slice(0, index + 1));
+
+                if (typeof activeEpoch.format === "function") {
+                    label = activeEpoch.format({ value, max, min, step, key });
+                } else {
+                    label = value;
+                }
+
+                function onClick() {
+                    const slicedKeychain = keychain.slice(0, index);
+                    const reducedValues = keychain.reduce((accumulator, k) => {
+                        accumulator[k] = values[k];
+                        return accumulator;
+                    }, {});
+                    onChange({
+                        keychain: [...slicedKeychain],
+                        values: reducedValues,
+                        key,
+                    });
+                }
+
+                return (
+                    <React.Fragment key={`breadcrumb-${key}`}>
+                        {isSelected ? (
+                            <SelectedCrumb onClick={onClick}>{label}</SelectedCrumb>
+                        ) : (
+                            <Crumb onClick={onClick}>{label}</Crumb>
+                        )}
+                        {!isSelected && <Spacer />}
+                    </React.Fragment>
+                );
+            })}
+        </Wrapper>
     );
 }
 
 Breadcrumbs.propTypes = {
     // required
-    breadcrumbs: PropTypes.array.isRequired,
-    keyName: PropTypes.string.isRequired,
-    epoch: PropTypes.object.isRequired,
+    data: PropTypes.array.isRequired,
+    keychain: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
+        .isRequired,
+    values: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
+    layout: PropTypes.shape({
+        wrapper: PropTypes.func.isRequired,
+        spacer: PropTypes.func.isRequired,
+        crumb: PropTypes.func.isRequired,
+        selectedCrumb: PropTypes.func.isRequired,
+    }).isRequired,
     // optional
-    // ...
 };
 
 export default Breadcrumbs;

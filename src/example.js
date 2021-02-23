@@ -5,38 +5,33 @@ import ReactDOM from "react-dom";
 import EpochPicker from "./index";
 
 const AnnoDomini = function () {
-    const [epoch, setEpoch] = useState(null);
-    console.log(epoch);
+    const [selected, setSelected] = useState(null);
     return (
         <EpochPicker
-            Tag="small"
-            epoch={epoch}
-            onChange={(epoch) => setEpoch(epoch)}
+            selected={selected}
+            onChange={setSelected}
             data={{
                 min: 1,
                 max: 2021,
                 key: "AD",
                 epochs: {
-                    format: ({ values, step, key, max, min }) => {
-                        const ceil = values[key] + step - 1;
-                        return `${values[key]}-${ceil > max ? max : ceil}`;
+                    format: ({ value, step, key, max, min }) => {
+                        const ceil = value + step - 1;
+                        return `${value}-${ceil > max ? max : ceil}`;
                     },
                     key: "millennium",
                     step: 1000,
                     epochs: {
-                        format: ({ values, step, key, max, min }) => {
-                            return values[key] - 1 + "s";
-                        },
+                        format: ({ value, step, key, max, min }) => value - 1 + "s",
                         key: "century",
                         step: 100,
                         epochs: {
-                            format: ({ values, step, key, max, min }) => {
-                                return values[key] - 1 + "s";
-                            },
-                            key: "decades",
+                            format: ({ value, step, key, max, min }) => value - 1 + "s",
+                            key: "decade",
                             step: 10,
                             epochs: {
-                                key: "years",
+                                format: ({ value, step, key, max, min }) => "y" + value,
+                                key: "year",
                                 step: 1,
                             },
                         },
@@ -48,29 +43,28 @@ const AnnoDomini = function () {
 };
 
 const AncientGreece = function () {
-    const [epoch, setEpoch] = useState(null);
+    const [selected, setSelected] = useState(null);
 
-    function format({ values, step, key, max, min }) {
-        return Math.abs(values[key]) + " BC";
+    function format({ value, step, key, max, min }) {
+        return Math.abs(value) + " BC";
     }
 
     return (
         <EpochPicker
-            Tag="small"
-            epoch={epoch}
-            onChange={(epoch) => setEpoch(epoch)}
+            selected={selected}
+            onChange={setSelected}
             data={[
                 {
                     min: -800,
-                    max: -500,
-                    key: "archaic",
+                    max: -501,
+                    key: "Archaic",
                     epochs: {
                         format,
                         key: "century",
                         step: 100,
                         epochs: {
                             format,
-                            key: "decades",
+                            key: "decade",
                             step: 10,
                         },
                     },
@@ -78,14 +72,14 @@ const AncientGreece = function () {
                 {
                     min: -500,
                     max: -323,
-                    key: "classical",
+                    key: "Classical",
                     epochs: {
                         format,
                         key: "century",
                         step: 100,
                         epochs: {
                             format,
-                            key: "decades",
+                            key: "decade",
                             step: 10,
                         },
                     },
@@ -93,19 +87,93 @@ const AncientGreece = function () {
                 {
                     min: -323,
                     max: -146,
-                    key: "archaic",
+                    key: "Hellenistic",
                     epochs: {
                         format,
                         key: "century",
                         step: 100,
                         epochs: {
                             format,
-                            key: "decades",
+                            key: "decade",
                             step: 10,
                             epochs: {
-                                key: "years",
+                                format,
+                                key: "year",
                                 step: 1,
                             },
+                        },
+                    },
+                },
+            ]}
+        />
+    );
+};
+
+const FooBar = function () {
+    const [selected, setSelected] = useState(null);
+
+    function format({ value, step, key, max, min }) {
+        return Math.abs(value) + " BC";
+    }
+
+    return (
+        <EpochPicker
+            selected={selected}
+            onChange={setSelected}
+            layout={{
+                epochs: {
+                    wrapper: (props) => <div {...props} style={{ background: "grey" }} />,
+                    key: (props) => <button {...props} style={{ background: "pink" }} />,
+                    step: (props) => (
+                        <button {...props} style={{ background: "purple", color: "white" }} />
+                    ),
+                    selectedStep: (props) => (
+                        <button
+                            {...props}
+                            disabled
+                            style={{ background: "brown", color: "white" }}
+                        />
+                    ),
+                },
+                breadcrumbs: {
+                    wrapper: (props) => <div {...props} style={{ background: "blue" }} />,
+                    spacer: (props) => (
+                        <small {...props} style={{ background: "green" }}>
+                            &rarr;
+                        </small>
+                    ),
+                    crumb: (props) => <small {...props} style={{ background: "orange" }} />,
+                    selectedCrumb: (props) => <small {...props} style={{ background: "yellow" }} />,
+                },
+            }}
+            data={[
+                {
+                    min: 1000,
+                    max: 2000,
+                    key: "foo",
+                    epochs: {
+                        format,
+                        key: "hoo",
+                        step: 100,
+                        epochs: {
+                            format,
+                            key: "haa",
+                            step: 10,
+                        },
+                    },
+                },
+                {
+                    min: 500,
+                    max: 1000,
+                    key: "bar",
+                    epochs: {
+                        format,
+                        key: "hoo",
+                        step: 50,
+                        epochs: {
+                            format,
+                            key: "haa",
+                            step: 5,
                         },
                     },
                 },
@@ -140,6 +208,13 @@ const ExampleApp = function () {
                 <b>Ancient Greece</b>
             </h5>
             <AncientGreece />
+
+            <hr />
+
+            <h5>
+                <b>Foo Bar</b>
+            </h5>
+            <FooBar />
         </div>
     );
 };

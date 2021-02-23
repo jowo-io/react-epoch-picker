@@ -1,158 +1,104 @@
 import React from "react";
-import PropTypes from "prop-types";
+import merge from "lodash.merge";
+
+import PropTypes, { selectedPropTypes, dataPropTypes } from "./utils/prop-types";
 
 import Breadcrumbs from "./components/Breadcrumbs";
-import repeat from "./utils/repeat";
+import ArrayEpoch from "./components/ArrayEpoch";
+import ObjectEpoch from "./components/ObjectEpoch";
 
-function renderEpochs(epochs, max, min, epoch, onChange, breadcrumbs = []) {
-    let isCurrent = false;
-    let isFinal = !(epochs && epochs.epochs);
-    let keychain = [];
-    if (epoch && epoch.keychain) {
-        if (epoch.keychain[epoch.keychain.length - 1] === epochs.key) {
-            isCurrent = true;
-            if (!isFinal) {
-                keychain = [...epoch.keychain, epochs.epochs.key];
-            } else {
-                keychain = [...epoch.keychain];
-            }
-        }
-    } else {
-        isCurrent = true;
-        keychain = [epochs.key, epochs.epochs.key];
-    }
+import getSelected from "./utils/getSelected";
+import nestedLookup from "./utils/nestedLookup";
+import findEpochArrayIndex from "./utils/findEpochArrayIndex";
 
-    if (isCurrent) {
-        const diff = Math.ceil(max - min);
-        let total = Math.ceil(diff / epochs.step);
-        if (diff % epochs.step === 0) {
-            total++;
-        }
-        return (
-            <>
-                {repeat((i) => {
-                    let value = min + i * epochs.step;
-                    let label = value;
-                    let values = {};
-                    if (epoch) {
-                        values = { ...epoch.values };
-                    }
-                    values[epochs.key] = value;
-
-                    if (typeof epochs.format === "function") {
-                        label = epochs.format({
-                            values,
-                            max,
-                            min,
-                            key: epochs.key,
-                            step: epochs.step,
-                        });
-                    }
-
-                    return (
-                        <span
-                            key={`${epochs.key}_${i}`}
-                            style={{
-                                marginRight: "10px",
-                                background:
-                                    isFinal && epoch && epoch.values[epochs.key] === value
-                                        ? "orange"
-                                        : "white",
-                            }}
-                            onClick={() => {
-                                onChange({ keychain, values, key: epochs.key });
-                            }}
-                        >
-                            {label}
-                        </span>
-                    );
-                }, total)}
-                <br />
-                <small>
-                    {breadcrumbs.map(({ key }, i) => (
-                        <React.Fragment key={`${key}_breadcrumb`}>
-                            {i !== 0 && " > "}
-                            <Breadcrumbs
-                                onChange={onChange}
-                                epoch={epoch}
-                                breadcrumbs={breadcrumbs}
-                                keyName={key}
-                            />
-                        </React.Fragment>
-                    ))}
+const defaultProps = {
+    layout: {
+        epochs: {
+            wrapper: (props) => <div {...props} />,
+            key: (props) => <button {...props} />,
+            step: (props) => <button {...props} />,
+            selectedStep: (props) => <button {...props} disabled style={{ opacity: 0.5 }} />,
+        },
+        breadcrumbs: {
+            wrapper: (props) => <div {...props} />,
+            spacer: (props) => (
+                <small {...props} style={{ opacity: 0.5 }}>
+                    &gt;
                 </small>
-            </>
-        );
-    } else {
-        let value;
-        const nextEpochs = epochs.epochs;
-        let isFinalBreadcrumb = false;
-        if (!(nextEpochs && nextEpochs.epochs) && nextEpochs.key === epoch.key) {
-            value = epoch.values[epoch.keychain[epoch.keychain.length - 2]];
-            isFinalBreadcrumb = true;
-        } else {
-            value = epoch.values[epoch.key];
-        }
-        let nextMax = value + epochs.step - 1;
-        if (nextMax > max) {
-            nextMax = max;
-        }
-        let nextMin = value;
-
-        const newBreadcrumbs = [{ epochs, max, min, key: epochs.key, isFinal: false }];
-        if (isFinalBreadcrumb) {
-            newBreadcrumbs.push({
-                epochs: nextEpochs,
-                max: nextMax,
-                min: nextMin,
-                key: nextEpochs.key,
-                isFinal: true,
-            });
-        }
-
-        return renderEpochs(nextEpochs, nextMax, nextMin, epoch, onChange, [
-            ...breadcrumbs,
-            ...newBreadcrumbs,
-        ]);
-    }
-}
+            ),
+            crumb: (props) => <span {...props} style={{ opacity: 0.5 }} />,
+            selectedCrumb: (props) => <span {...props} />,
+        },
+    },
+};
 
 /**
  *
  */
-const EpochPicker = function ({ data, epoch, onChange, Tag, className, style, extraAttributes }) {
+const EpochPicker = function ({ data, selected, onChange, layout }) {
+    data = data instanceof Array ? data : [data];
+
+    const { keychain, values } = getSelected(data, selected);
+    const { activeEpoch, isFinal, isArray } = nestedLookup(data, keychain);
+
+    function onClickOption(value) {
+        if (isFinal) {
+            return;
+        }
+        const key = isArray ? findEpochArrayIndex(data, value) : activeEpoch.epochs.key;
+        onChange({
+            keychain: [...keychain, key],
+            values: { ...values, [key]: value },
+            key,
+        });
+    }
+
     return (
-        <Tag {...extraAttributes} className={className} style={style}>
-            {data instanceof Array
-                ? "hello"
-                : renderEpochs(data.epochs, data.max, data.min, epoch, onChange)}
-        </Tag>
+        <>
+            {isArray ? (
+                <ArrayEpoch
+                    data={data}
+                    activeEpoch={activeEpoch}
+                    keychain={keychain}
+                    values={values}
+                    onClick={onClickOption}
+                    isFinal={isFinal}
+                    layout={merge({}, defaultProps.layout.epochs, layout.epochs || {})}
+                />
+            ) : (
+                <ObjectEpoch
+                    data={data}
+                    activeEpoch={activeEpoch}
+                    keychain={keychain}
+                    values={values}
+                    onClick={onClickOption}
+                    isFinal={isFinal}
+                    layout={merge({}, defaultProps.layout.epochs, layout.epochs || {})}
+                />
+            )}
+            <Breadcrumbs
+                data={data}
+                keychain={keychain}
+                values={values}
+                onChange={onChange}
+                layout={merge({}, defaultProps.layout.breadcrumbs, layout.breadcrumbs || {})}
+            />
+        </>
     );
 };
 
-EpochPicker.defaultProps = {
-    className: "",
-    style: {},
-    Tag: "button",
-    extraAttributes: {},
-};
+EpochPicker.defaultProps = defaultProps;
 
 EpochPicker.propTypes = {
     // required
-    data: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]).isRequired, // TODO make this recursive proptype
+    data: dataPropTypes,
     // optional
-
-    epoch: PropTypes.shape({
-        keychain: PropTypes.array,
-        values: PropTypes.object,
-        key: PropTypes.string,
+    selected: selectedPropTypes,
+    onChange: PropTypes.func.isRequired,
+    layout: PropTypes.shape({
+        epochs: PropTypes.object,
+        breadcrumbs: PropTypes.object,
     }),
-    onChange: PropTypes.func,
-
-    Tag: PropTypes.string,
-    className: PropTypes.string,
-    style: PropTypes.object,
-    extraAttributes: PropTypes.object,
 };
 
 export default EpochPicker;
