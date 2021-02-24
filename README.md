@@ -11,69 +11,71 @@ A React UI component for choosing an date epoch, starting zoomed out at millenni
 > ⚠ warning, this package is still under development ⚠
 
 ```jsx
-const AncientGreece = function () {
+import EpochPicker from "react-epoch-picker";
+
+const AnnoDomini = function () {
     const [selected, setSelected] = useState(null);
-
-    function format({ value, step, key, max, min }) {
-        return Math.abs(value) + " BC";
-    }
-
     return (
         <EpochPicker
+            layout={{
+                epochs: {
+                    wrapper: (props) => <div {...props} style={{ background: "grey" }} />,
+                    key: (props) => <button {...props} style={{ background: "pink" }} />,
+                    step: (props) => (
+                        <button {...props} style={{ background: "purple", color: "white" }} />
+                    ),
+                    selectedStep: (props) => (
+                        <button
+                            {...props}
+                            disabled
+                            style={{ background: "brown", color: "white" }}
+                        />
+                    ),
+                },
+                breadcrumbs: {
+                    wrapper: (props) => <div {...props} style={{ background: "blue" }} />,
+                    spacer: (props) => (
+                        <small {...props} style={{ background: "green" }}>
+                            &rarr;
+                        </small>
+                    ),
+                    crumb: (props) => <small {...props} style={{ background: "orange" }} />,
+                    selectedCrumb: (props) => <small {...props} style={{ background: "yellow" }} />,
+                },
+            }}
             selected={selected}
             onChange={setSelected}
-            data={[
-                {
-                    min: -800,
-                    max: -501,
-                    key: "Archaic",
-                    epochs: {
-                        format,
-                        key: "century",
-                        step: 100,
-                        epochs: {
-                            format,
-                            key: "decade",
-                            step: 10,
-                        },
+            data={{
+                min: 1,
+                max: 2021,
+                key: "AD",
+                epochs: {
+                    format: ({ value, step, key, max, min }) => {
+                        const ceil = value + step - 1;
+                        return `${value}-${ceil > max ? max : ceil}`;
                     },
-                },
-                {
-                    min: -500,
-                    max: -323,
-                    key: "Classical",
+                    key: "millennium",
+                    step: 1000,
                     epochs: {
-                        format,
+                        format: ({ value, step, key, max, min }) => value - 1 + "s",
                         key: "century",
                         step: 100,
                         epochs: {
-                            format,
-                            key: "decade",
-                            step: 10,
-                        },
-                    },
-                },
-                {
-                    min: -323,
-                    max: -146,
-                    key: "Hellenistic",
-                    epochs: {
-                        format,
-                        key: "century",
-                        step: 100,
-                        epochs: {
-                            format,
+                            format: ({ value, step, key, max, min }) => {
+                                const endValue = value - 1 + step;
+                                const endValueShort = endValue % 100;
+                                return `${value}-${endValueShort ? endValueShort : endValue}`;
+                            },
                             key: "decade",
                             step: 10,
                             epochs: {
-                                format,
                                 key: "year",
                                 step: 1,
                             },
                         },
                     },
                 },
-            ]}
+            }}
         />
     );
 };

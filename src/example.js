@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-
-// import EpochPicker from "react-epoch-picker";
-import EpochPicker from "./index";
+import EpochPicker from "react-epoch-picker";
 
 const AnnoDomini = function () {
     const [selected, setSelected] = useState(null);
