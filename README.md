@@ -8,7 +8,76 @@ A React UI component for choosing an date epoch, starting zoomed out at millenni
 
 ## Usage
 
-> COMING SOON
+> ⚠ warning, this package is still under development ⚠
+
+```jsx
+const AncientGreece = function () {
+    const [selected, setSelected] = useState(null);
+
+    function format({ value, step, key, max, min }) {
+        return Math.abs(value) + " BC";
+    }
+
+    return (
+        <EpochPicker
+            selected={selected}
+            onChange={setSelected}
+            data={[
+                {
+                    min: -800,
+                    max: -501,
+                    key: "Archaic",
+                    epochs: {
+                        format,
+                        key: "century",
+                        step: 100,
+                        epochs: {
+                            format,
+                            key: "decade",
+                            step: 10,
+                        },
+                    },
+                },
+                {
+                    min: -500,
+                    max: -323,
+                    key: "Classical",
+                    epochs: {
+                        format,
+                        key: "century",
+                        step: 100,
+                        epochs: {
+                            format,
+                            key: "decade",
+                            step: 10,
+                        },
+                    },
+                },
+                {
+                    min: -323,
+                    max: -146,
+                    key: "Hellenistic",
+                    epochs: {
+                        format,
+                        key: "century",
+                        step: 100,
+                        epochs: {
+                            format,
+                            key: "decade",
+                            step: 10,
+                            epochs: {
+                                format,
+                                key: "year",
+                                step: 1,
+                            },
+                        },
+                    },
+                },
+            ]}
+        />
+    );
+};
+```
 
 ## Examples
 

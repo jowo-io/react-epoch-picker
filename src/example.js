@@ -26,11 +26,14 @@ const AnnoDomini = function () {
                         key: "century",
                         step: 100,
                         epochs: {
-                            format: ({ value, step, key, max, min }) => value - 1 + "s",
+                            format: ({ value, step, key, max, min }) => {
+                                const endValue = value - 1 + step;
+                                const endValueShort = endValue % 100;
+                                return `${value}-${endValueShort ? endValueShort : endValue}`;
+                            },
                             key: "decade",
                             step: 10,
                             epochs: {
-                                format: ({ value, step, key, max, min }) => "y" + value,
                                 key: "year",
                                 step: 1,
                             },
@@ -45,8 +48,19 @@ const AnnoDomini = function () {
 const AncientGreece = function () {
     const [selected, setSelected] = useState(null);
 
-    function format({ value, step, key, max, min }) {
-        return Math.abs(value) + " BC";
+    function formatCentury({ value, step, key, max, min }) {
+        const e = Math.abs(value - 1 + step);
+        const v = Math.abs(value);
+        return `${v}-${e} BC`;
+    }
+    function formatDecade({ value, step, key, max, min }) {
+        const e = Math.abs(value - 1 + step);
+        const v = Math.abs(value);
+        return `${v}-${e} BC`;
+    }
+    function formatYear({ value, step, key, max, min }) {
+        const v = Math.abs(value - 1);
+        return `${v} BC`;
     }
 
     return (
@@ -59,11 +73,11 @@ const AncientGreece = function () {
                     max: -501,
                     key: "Archaic",
                     epochs: {
-                        format,
+                        format: formatCentury,
                         key: "century",
                         step: 100,
                         epochs: {
-                            format,
+                            format: formatDecade,
                             key: "decade",
                             step: 10,
                         },
@@ -74,11 +88,11 @@ const AncientGreece = function () {
                     max: -323,
                     key: "Classical",
                     epochs: {
-                        format,
+                        format: formatCentury,
                         key: "century",
                         step: 100,
                         epochs: {
-                            format,
+                            format: formatDecade,
                             key: "decade",
                             step: 10,
                         },
@@ -89,15 +103,15 @@ const AncientGreece = function () {
                     max: -146,
                     key: "Hellenistic",
                     epochs: {
-                        format,
+                        format: formatCentury,
                         key: "century",
                         step: 100,
                         epochs: {
-                            format,
+                            format: formatDecade,
                             key: "decade",
                             step: 10,
                             epochs: {
-                                format,
+                                format: formatYear,
                                 key: "year",
                                 step: 1,
                             },
@@ -111,10 +125,6 @@ const AncientGreece = function () {
 
 const FooBar = function () {
     const [selected, setSelected] = useState(null);
-
-    function format({ value, step, key, max, min }) {
-        return Math.abs(value) + " BC";
-    }
 
     return (
         <EpochPicker
@@ -152,11 +162,9 @@ const FooBar = function () {
                     max: 2000,
                     key: "foo",
                     epochs: {
-                        format,
                         key: "hoo",
                         step: 100,
                         epochs: {
-                            format,
                             key: "haa",
                             step: 10,
                         },
@@ -167,11 +175,9 @@ const FooBar = function () {
                     max: 1000,
                     key: "bar",
                     epochs: {
-                        format,
                         key: "hoo",
                         step: 50,
                         epochs: {
-                            format,
                             key: "haa",
                             step: 5,
                         },
