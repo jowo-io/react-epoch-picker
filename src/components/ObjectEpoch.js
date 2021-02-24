@@ -9,8 +9,11 @@ import PropTypes, {
 
 import repeat from "../utils/repeat";
 import getBreadcrumbs from "../utils/getBreadcrumbs";
-import formatValue from "../utils/formatValue";
+import formatNextEpochValue from "../utils/formatNextEpochValue";
 
+/**
+ * renders a range of numbers as specified by the step and the parent's range (max/min) values
+ */
 function ObjectEpoch({ data, activeEpoch, keychain, values, onClick, isFinal, layout }) {
     const { wrapper: Wrapper, step: Step, selectedStep: SelectedStep } = layout;
 
@@ -20,7 +23,14 @@ function ObjectEpoch({ data, activeEpoch, keychain, values, onClick, isFinal, la
         <Wrapper>
             {repeat((i) => {
                 const value = min + i * nextStep;
-                const label = formatValue({ value, max, min, nextStep, activeEpoch, isFinal });
+                const label = formatNextEpochValue({
+                    value,
+                    max,
+                    min,
+                    nextStep,
+                    activeEpoch,
+                    isFinal,
+                });
                 const isSelected = isFinal && value === values[activeEpoch.key];
 
                 return (

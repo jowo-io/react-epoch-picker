@@ -1,5 +1,14 @@
 import isNumber from "./isNumber";
 
+/**
+ * cross references each key in the keychain with the nested data object
+ * and returns an array of breadcrumbs, one for each nested object in the data
+ *
+ * @param {object} params
+ * @param {array | object} params.data
+ * @param {array} params.keychain
+ * @param {object} params.values
+ */
 export default function getBreadcrumbs({ data, keychain, values }) {
     let currentEpoch = data;
     let breadcrumbs = [];

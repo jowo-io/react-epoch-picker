@@ -1,3 +1,9 @@
+/**
+ * accepts the data and the keychain, then finds the nested epoch data that corresponds to the keychain
+ *
+ * @param {array | object} data
+ * @param {array} keychain
+ */
 export default function nestedLookup(data, keychain) {
     let isFinal = false;
     let activeEpoch = data;

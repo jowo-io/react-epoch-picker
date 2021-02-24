@@ -37,7 +37,7 @@ const defaultProps = {
 };
 
 /**
- *
+ * the main EpochPicker component renders a list of epochs which can be traversed up or down to the desired granularity to find the epoch you want to select.
  */
 const EpochPicker = function ({ data, selected, onChange, layout }) {
     data = data instanceof Array ? data : [data];

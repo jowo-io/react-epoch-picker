@@ -9,6 +9,9 @@ import PropTypes, {
 import nestedLookup from "../utils/nestedLookup";
 import getBreadcrumbs from "../utils/getBreadcrumbs";
 
+/**
+ * renders a set of breadcrumbs for navigating back up the epoch tree
+ */
 function Breadcrumbs({ data, keychain, values, onChange, layout }) {
     const { wrapper: Wrapper, spacer: Spacer, crumb: Crumb, selectedCrumb: SelectedCrumb } = layout;
     const breadcrumbs = getBreadcrumbs({
