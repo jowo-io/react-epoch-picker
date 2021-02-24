@@ -1,6 +1,6 @@
 {
     "name": "react-epoch-picker",
-    "version": "1.0.0",
+    "version": "0.0.1",
     "description": "A React UI component for choosing an date epoch, starting zoomed out at millenniums and going down through the centuries, decades and years.",
     "main": "dist/index.js",
     "engine": {
