@@ -1,7 +1,11 @@
 import React from "react";
 import merge from "lodash.merge";
-
-import PropTypes, { selectedPropTypes, dataPropTypes } from "./utils/prop-types";
+import PropTypes, {
+    selectedPropTypes,
+    dataPropTypes,
+    breadcrumbsLayoutPropTypes,
+    epochsLayoutPropTypes,
+} from "./utils/propTypes";
 
 import Breadcrumbs from "./components/Breadcrumbs";
 import ArrayEpoch from "./components/ArrayEpoch";
@@ -91,13 +95,13 @@ EpochPicker.defaultProps = defaultProps;
 
 EpochPicker.propTypes = {
     // required
-    data: dataPropTypes,
+    data: dataPropTypes.isRequired,
+    onChange: PropTypes.func.isRequired,
     // optional
     selected: selectedPropTypes,
-    onChange: PropTypes.func.isRequired,
     layout: PropTypes.shape({
-        epochs: PropTypes.object,
-        breadcrumbs: PropTypes.object,
+        epochs: epochsLayoutPropTypes,
+        breadcrumbs: breadcrumbsLayoutPropTypes,
     }),
 };
 

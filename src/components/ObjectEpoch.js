@@ -1,5 +1,11 @@
 import React from "react";
-import PropTypes from "prop-types";
+import PropTypes, {
+    dataPropTypes,
+    epochsLayoutPropTypes,
+    keychainPropTypes,
+    valuesPropTypes,
+    objectEpochPropTypes,
+} from "../utils/propTypes";
 
 import repeat from "../utils/repeat";
 import getBreadcrumbs from "../utils/getBreadcrumbs";
@@ -33,19 +39,13 @@ function ObjectEpoch({ data, activeEpoch, keychain, values, onClick, isFinal, la
 
 ObjectEpoch.propTypes = {
     // required
-    data: PropTypes.array.isRequired,
-    activeEpoch: PropTypes.object.isRequired,
-    keychain: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
-        .isRequired,
-    values: PropTypes.object.isRequired,
+    data: dataPropTypes.isRequired,
+    activeEpoch: objectEpochPropTypes.isRequired,
+    keychain: keychainPropTypes.isRequired,
+    values: valuesPropTypes.isRequired,
     onClick: PropTypes.func.isRequired,
     isFinal: PropTypes.bool.isRequired,
-    layout: PropTypes.shape({
-        wrapper: PropTypes.func.isRequired,
-        key: PropTypes.func.isRequired,
-        step: PropTypes.func.isRequired,
-        selectedStep: PropTypes.func.isRequired,
-    }).isRequired,
+    layout: epochsLayoutPropTypes.isRequired,
     // optional
     // ...
 };

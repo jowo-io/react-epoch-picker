@@ -1,5 +1,10 @@
 import React from "react";
-import PropTypes from "prop-types";
+import PropTypes, {
+    dataPropTypes,
+    keychainPropTypes,
+    valuesPropTypes,
+    breadcrumbsLayoutPropTypes,
+} from "../utils/propTypes";
 
 import nestedLookup from "../utils/nestedLookup";
 import getBreadcrumbs from "../utils/getBreadcrumbs";
@@ -60,17 +65,11 @@ function Breadcrumbs({ data, keychain, values, onChange, layout }) {
 
 Breadcrumbs.propTypes = {
     // required
-    data: PropTypes.array.isRequired,
-    keychain: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number]))
-        .isRequired,
-    values: PropTypes.object.isRequired,
+    data: dataPropTypes.isRequired,
+    keychain: keychainPropTypes.isRequired,
+    values: valuesPropTypes.isRequired,
     onChange: PropTypes.func.isRequired,
-    layout: PropTypes.shape({
-        wrapper: PropTypes.func.isRequired,
-        spacer: PropTypes.func.isRequired,
-        crumb: PropTypes.func.isRequired,
-        selectedCrumb: PropTypes.func.isRequired,
-    }).isRequired,
+    layout: breadcrumbsLayoutPropTypes.isRequired,
     // optional
 };
 
